@@ -16,10 +16,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.example.mad_assignment_2_part_b.MainActivity;
 import com.example.mad_assignment_2_part_b.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,7 +40,10 @@ import java.util.List;
  */
 public class SingleColumnDisplayFragment extends Fragment
 {
+    private String searchStr;
     private List<Bitmap> imageList;
+    private StorageReference storageReference;
+    private ProgressBar progressBar;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -44,9 +59,11 @@ public class SingleColumnDisplayFragment extends Fragment
         // Required empty public constructor
     }
 
-    public SingleColumnDisplayFragment(List<Bitmap> imageList)
+    public SingleColumnDisplayFragment(String searchStr, List<Bitmap> imageList, StorageReference storageReference)
     {
+        this.searchStr = searchStr;
         this.imageList = imageList;
+        this.storageReference = storageReference;
     }
 
     /**
@@ -86,6 +103,8 @@ public class SingleColumnDisplayFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_single_column_display, container, false);
         Button doubleColumnButton = view.findViewById(R.id.doubleColumnButton);
         Button homeButton = view.findViewById(R.id.homeButton);
+        progressBar = view.findViewById(R.id.singleColumnProgressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         RecyclerView rv = view.findViewById(R.id.singleRecyclerView);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         Adapter adapter = new Adapter(imageList);
@@ -97,7 +116,7 @@ public class SingleColumnDisplayFragment extends Fragment
             public void onClick(View view)
             {
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                DoubleColumnDisplayFragment doubleColumnDisplayFragment = new DoubleColumnDisplayFragment(imageList);
+                DoubleColumnDisplayFragment doubleColumnDisplayFragment = new DoubleColumnDisplayFragment(searchStr, imageList, storageReference);
                 fm.beginTransaction().replace(R.id.fragment_container, doubleColumnDisplayFragment).commit();
             }
         });
@@ -150,6 +169,45 @@ public class SingleColumnDisplayFragment extends Fragment
         {
             Bitmap bitmap = imageData.get(position);
             holder.image.setImageBitmap(bitmap);
+
+            holder.image.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    Toast.makeText(getActivity(), "Starting Upload...", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    // Image will be uploaded to 'images' directory with filename 'searchStr + randomKey'
+                    final String randomKey = UUID.randomUUID().toString();
+                    StorageReference riversRef = storageReference.child("images/" + searchStr + randomKey);
+
+                    // Converting Bitmap into Byte[]
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] data = baos.toByteArray();
+
+                    // Uploading image to firebase
+                    UploadTask uploadTask = riversRef.putBytes(data);
+                    uploadTask.addOnFailureListener(new OnFailureListener()
+                    {
+                        @Override
+                        public void onFailure(@NonNull Exception e)
+                        {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(getActivity(), "Failed To Upload", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
+                    {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
+                        {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(getActivity(), "Image Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
         }
 
         @Override

@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.mad_assignment_2_part_b.fragments.SingleColumnDisplayFragment;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     private Button searchButton;
     private ProgressBar progressBar;
     private List<Bitmap> imageList;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
         imageList = new ArrayList<>();
+        storageReference = FirebaseStorage.getInstance().getReference();
 
         searchButton.setOnClickListener(new View.OnClickListener()
         {
@@ -58,7 +62,7 @@ public class MainActivity extends AppCompatActivity
 
     public void searchImage()
     {
-        Toast.makeText(MainActivity.this, "Searching starts", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Searching Starts", Toast.LENGTH_SHORT).show();
         progressBar.setVisibility(View.VISIBLE);
         SearchTask searchTask = new SearchTask(MainActivity.this);
         searchTask.setSearchKey(searchEditText.getText().toString());
@@ -150,7 +154,7 @@ public class MainActivity extends AppCompatActivity
 
                     if(singleColumnDisplayFragment == null)
                     {
-                        singleColumnDisplayFragment = new SingleColumnDisplayFragment(imageList);
+                        singleColumnDisplayFragment = new SingleColumnDisplayFragment(searchEditText.getText().toString(), imageList, storageReference);
                         fm.beginTransaction().add(R.id.fragment_container, singleColumnDisplayFragment).commit();
                     }
                 }
