@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Nate/Documents/GitHub/MAD-Assignment-2-Part-B/app/src/main/res/layout/activity_main.xml" value="0.35260416666666666" />
+        <entry key="..\:/Users/Nate/Documents/GitHub/MAD-Assignment-2-Part-B/app/src/main/res/layout/each_image_double_view.xml" value="0.3582427536231884" />
+        <entry key="..\:/Users/Nate/Documents/GitHub/MAD-Assignment-2-Part-B/app/src/main/res/layout/each_image_single_view.xml" value="0.3582427536231884" />
+        <entry key="..\:/Users/Nate/Documents/GitHub/MAD-Assignment-2-Part-B/app/src/main/res/layout/fragment_double_column_display.xml" value="0.3582427536231884" />
+        <entry key="..\:/Users/Nate/Documents/GitHub/MAD-Assignment-2-Part-B/app/src/main/res/layout/fragment_single_column_display.xml" value="0.3582427536231884" />
       </map>
     </option>
   </component>
